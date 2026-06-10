@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Administrador</title>
+
+    <style>
+      body {
+        margin: 0;
+        font-family:
+          Segoe UI,
+          Arial;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: white;
+      }
+
+      .container {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        padding: 40px;
+        border-radius: 15px;
+        width: 350px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      }
+
+      h1 {
+        margin-bottom: 25px;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background: #4fc3f7;
+        font-size: 15px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      button:hover {
+        opacity: 0.9;
+      }
+
+      .footer {
+        margin-top: 15px;
+        font-size: 12px;
+        opacity: 0.6;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Administrador</h1>
+
+      <input type="text" id="usuario" placeholder="Usuario" />
+
+      <input type="password" id="password" placeholder="Contraseña" />
+
+      <button onclick="login()">Ingresar</button>
+
+      <div class="footer">Sistema de Control de Acceso</div>
+    </div>
+
+    <script>
+      function login() {
+        let usuario = document.getElementById("usuario").value;
+        let password = document.getElementById("password").value;
+
+        if (usuario === "" || password === "") {
+          alert("Ingrese usuario y contraseña");
+          return;
+        }
+
+        fetch("login_admin.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `usuario=${encodeURIComponent(usuario)}&password=${encodeURIComponent(password)}`,
+        })
+          .then((response) => response.text())
+          .then((data) => {
+            if (data.trim() == "ok") {
+              window.location.href = "admin_dashboard.html";
+            } else {
+              alert("Credenciales incorrectas");
+            }
+          })
+          .catch((error) => {
+            alert("Error de conexión con el servidor");
+          });
+      }
+    </script>
+  </body>
+</html>

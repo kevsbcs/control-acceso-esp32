@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ingreso de Código</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    color:white;
+}
+
+.container{
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(8px);
+    padding:40px;
+    border-radius:20px;
+    text-align:center;
+    width:400px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.6);
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:15px;
+}
+
+h2{
+    margin-bottom:25px;
+}
+
+.logo{
+    width:120px;
+    margin-bottom:20px;
+    opacity:0;
+    transform:scale(0.8);
+    animation:logoIn 1s ease forwards;
+}
+
+@keyframes logoIn{
+    to{
+        opacity:0.95;
+        transform:scale(1);
+    }
+}
+
+.btn-back{
+    margin-top:25px;
+    padding:12px 25px;
+    border:none;
+    border-radius:10px;
+    background:#1e88e5;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn-back:hover{
+    background:#1565c0;
+    transform:scale(1.05);
+}
+
+.pin-box{
+    margin:20px 0;
+    padding:15px;
+    font-size:22px;
+    letter-spacing:1px;
+    background:rgba(0,0,0,0.3);
+    border:2px solid rgba(255,255,255,0.2);
+    border-radius:12px;
+    width:100%;
+    box-sizing:border-box;
+    min-height:80px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    word-break:break-word;
+    line-height:1.4;
+}
+
+.cursor{
+    display:inline-block;
+    width:10px;
+    animation:blink 1s infinite;
+}
+
+@keyframes blink{
+    0%,50%,100%{opacity:1;}
+    25%,75%{opacity:0;}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Ingrese el código</h2>
+
+    <img src="CODIGO.jpg" class="logo">
+
+    <div class="pin-box" id="mensaje">
+        <span class="cursor">|</span>
+    </div>
+
+    <button class="btn-back" onclick="volver()">
+        Volver
+    </button>
+
+</div>
+
+<script>
+
+const ESP32_IP = "http://172.20.10.2";
+
+let timeoutRegreso = null;
+
+window.onload = function(){
+
+    fetch(`${ESP32_IP}/modo?tipo=code`)
+    .then(()=>{
+        mensaje(
+            '<span class="cursor">|</span>',
+            "white"
+        );
+    })
+    .catch(()=>{
+        mensaje(
+            "Error de conexión con ESP32",
+            "orange"
+        );
+    });
+
+};
+
+function mensaje(txt,color){
+
+    let m = document.getElementById("mensaje");
+
+    m.innerHTML = txt;
+
+    m.style.color = color;
+}
+
+function volver(){
+
+    window.location.href = "index_salida.html";
+}
+
+function programarRegreso(){
+
+    if(timeoutRegreso){
+        clearTimeout(timeoutRegreso);
+    }
+
+    timeoutRegreso = setTimeout(()=>{
+        window.location.href = "index_salida.html";
+    },3000);
+}
+
+setInterval(()=>{
+
+fetch(`${ESP32_IP}/estado`,{
+    cache:"no-store"
+})
+
+.then(r=>r.text())
+
+.then(data=>{
+
+data = data.trim();
+
+console.log("Estado:",data);
+
+// -------- TYPING --------
+if(data.startsWith("TYPING:")){
+
+let n = parseInt(data.split(":")[1]) || 0;
+
+mensaje(
+"*".repeat(n) +
+'<span class="cursor">|</span>',
+"white"
+);
+
+}
+
+// -------- WAITING --------
+else if(data==="WAITING"){
+
+mensaje(
+'<span class="cursor">|</span>',
+"white"
+);
+
+}
+
+// -------- GRANTED --------
+else if(data.startsWith("GRANTED:")){
+
+mensaje(
+data.substring(8),
+"#4CAF50"
+);
+
+programarRegreso();
+
+}
+
+else if(data==="GRANTED"){
+
+mensaje(
+"Salida registrada correctamente",
+"#4CAF50"
+);
+
+programarRegreso();
+
+}
+
+// -------- DENIED --------
+else if(data.startsWith("DENIED:")){
+
+mensaje(
+data.substring(7),
+"#f44336"
+);
+
+programarRegreso();
+
+}
+
+else if(data==="DENIED"){
+
+mensaje(
+"Acceso denegado",
+"#f44336"
+);
+
+programarRegreso();
+
+}
+
+})
+
+.catch(()=>{
+
+mensaje(
+"Error de comunicación",
+"orange"
+);
+
+});
+
+},300);
+
+</script>
+
+</body>
+</html>

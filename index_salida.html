@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Museo de Historia Natural de Popayán</title>
+
+<style>
+body{
+    margin:0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    color:white;
+}
+
+.container{
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(8px);
+    padding:50px;
+    border-radius:20px;
+    text-align:center;
+    width:420px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.6);
+    border:1px solid rgba(255,255,255,0.1);
+}
+
+.logo{
+    font-size:18px;
+    letter-spacing:2px;
+    color:#4fc3f7;
+    margin-bottom:10px;
+}
+
+h1{
+    margin:10px 0 30px 0;
+    font-weight:600;
+}
+
+.subtitle{
+    font-size:14px;
+    opacity:0.85;
+    margin-bottom:30px;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin:12px 0;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn-code{
+    background:#1565c0;
+    color:white;
+}
+
+.btn-rfid{
+    background:#4fc3f7;
+    color:#0f2027;
+    font-weight:bold;
+}
+
+button:hover{
+    transform:scale(1.03);
+    opacity:0.9;
+}
+
+.footer{
+    margin-top:25px;
+    font-size:12px;
+    opacity:0.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <img src="candado.png" style="width:80px; margin-bottom:15px;">
+    <div class="logo">MUSEO DE HISTORIA NATURAL</div>
+    <h1>Control de Acceso</h1>
+    <div class="subtitle">
+        Seleccione el método de verificación
+    </div>
+
+    <button class="btn-code" onclick="selectMethod('code')">
+        Ingresar Código
+    </button>
+
+    <button class="btn-rfid" onclick="selectMethod('rfid')">
+        Acceso con Tarjeta RFID
+    </button>
+
+    <div class="footer">
+        Popayán - Colombia
+    </div>
+</div>
+
+<script>
+
+const ESP32_IP = "http://172.20.10.2";
+
+function selectMethod(method){
+
+    // Activar modo en la ESP32
+    fetch(`${ESP32_IP}/modo?tipo=${method}`)
+    .then(response => response.text())
+    .then(data => {
+        console.log("Modo activado:", data);
+
+        // Redirigir después de activar el modo
+        if(method === "code"){
+           window.location.href = "interfaz_codigo_salida.html";
+        }
+
+        if(method === "rfid"){
+           window.location.href = "interfaz_rfid_salida.html";
+        }
+    })
+    .catch(error => {
+        alert("No se pudo conectar con la ESP32");
+        console.error(error);
+    });
+}
+
+</script>
+
+</body>
+</html>

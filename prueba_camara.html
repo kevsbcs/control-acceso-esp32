@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de cámara</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1f3b4d;
+        }
+
+        video {
+            width: 700px;
+            max-width: 100%;
+            border: 3px solid #1f3b4d;
+            border-radius: 10px;
+            background: black;
+            margin-top: 20px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 18px;
+            border: none;
+            background: #3fa9f5;
+            color: white;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #2e8fd6;
+        }
+
+        #mensaje {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Prueba de cámara USB</h1>
+    <button onclick="iniciarCamara()">Iniciar cámara</button>
+    <p id="mensaje">Presiona el botón para probar la cámara.</p>
+
+    <video id="video" autoplay playsinline muted></video>
+
+    <script>
+        let stream = null;
+
+        async function iniciarCamara() {
+            const video = document.getElementById("video");
+            const mensaje = document.getElementById("mensaje");
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+
+                video.srcObject = stream;
+                mensaje.textContent = "Cámara iniciada correctamente.";
+                mensaje.style.color = "green";
+
+            } catch (error) {
+                console.error(error);
+                mensaje.textContent = "No se pudo acceder a la cámara.";
+                mensaje.style.color = "red";
+            }
+        }
+    </script>
+
+</body>
+</html>

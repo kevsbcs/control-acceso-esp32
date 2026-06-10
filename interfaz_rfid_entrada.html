@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceso RFID</title>
+
+<style>
+body{
+    margin:0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    color:white;
+}
+
+.container{
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(8px);
+    padding:50px;
+    border-radius:20px;
+    text-align:center;
+    width:420px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.6);
+}
+
+h2{
+    margin-bottom:20px;
+}
+.rfid-img{
+    width:120px;
+    margin-bottom:15px;
+    filter: drop-shadow(0 0 10px rgba(79,195,247,0.7));
+}
+
+
+.rfid-box{
+    margin:30px 0;
+    padding:25px;
+    border:2px dashed #4fc3f7;
+    border-radius:15px;
+    font-size:18px;
+    opacity:0.9;
+}
+
+.message{
+    margin-top:20px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.btn-volver{
+    margin-top:25px;
+    padding:12px 25px;
+    border:none;
+    border-radius:10px;
+    background:#1e88e5;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
+    display: inline-block;
+}
+
+.btn-volver:hover{
+    background:#1565c0;
+    transform:scale(1.05);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Verificación por Tarjeta RFID</h2>
+    <img src="RFID.png" alt="RFID" class="rfid-img">
+
+    <div class="rfid-box">
+        Acerque la tarjeta al lector...
+    </div>
+
+    <div class="message" id="mensaje">Esperando tarjeta...</div>
+    
+    <button class="btn-volver" onclick="volverMenu()">VOLVER</button>
+</div>
+
+
+<script>
+
+const ESP32_IP = "http://172.20.10.3";
+
+let ultimoEstado = "";
+let huboActividad = false;
+let timeoutRegreso = null;
+
+window.onload = function(){
+
+    fetch(`${ESP32_IP}/modo?tipo=rfid`)
+    .then(()=>{
+        mensaje("Esperando tarjeta...", "white");
+    })
+    .catch(()=>{
+        mensaje("Error de conexión con ESP32","orange");
+    });
+
+};
+
+function mensaje(txt,color){
+    let m = document.getElementById("mensaje");
+    m.innerHTML = txt;
+    m.style.color = color;
+}
+
+function volverMenu(){
+    window.location.href = "index_entrada.html";
+}
+
+function programarRegreso(){
+
+    if(timeoutRegreso){
+        clearTimeout(timeoutRegreso);
+    }
+
+    timeoutRegreso = setTimeout(()=>{
+        window.location.href = "index_entrada.html";
+    }, 3000);
+}
+
+setInterval(()=>{
+
+    fetch(`${ESP32_IP}/estado`, {
+        cache: "no-store"
+    })
+
+    .then(r => r.text())
+
+    .then(data => {
+
+        data = data.trim();
+
+        if(data === ultimoEstado) return;
+
+        ultimoEstado = data;
+
+        console.log("Estado:", data);
+
+        // -------- ESPERANDO --------
+        if(data === "WAITING"){
+
+            mensaje("Esperando tarjeta...", "white");
+        }
+
+        // -------- ACCESO GRANTED --------
+        else if(data.startsWith("GRANTED:")){
+
+            huboActividad = true;
+
+            mensaje(
+                data.substring(8),
+                "#4CAF50"
+            );
+
+            programarRegreso();
+        }
+
+        else if(data === "GRANTED"){
+
+            huboActividad = true;
+
+            mensaje(
+                "Acceso permitido",
+                "#4CAF50"
+            );
+
+            programarRegreso();
+        }
+
+        // -------- ACCESO DENIED --------
+        else if(data.startsWith("DENIED:")){
+
+            huboActividad = true;
+
+            mensaje(
+                data.substring(7),
+                "#f44336"
+            );
+
+            programarRegreso();
+        }
+
+        else if(data === "DENIED"){
+
+            huboActividad = true;
+
+            mensaje(
+                "Acceso denegado",
+                "#f44336"
+            );
+
+            programarRegreso();
+        }
+
+        // -------- IDLE --------
+        else if(data === "IDLE"){
+
+            if(huboActividad){
+                programarRegreso();
+            }
+        }
+
+    })
+
+    .catch(()=>{
+
+        mensaje(
+            "Error de comunicación con ESP32",
+            "orange"
+        );
+
+    });
+
+}, 300);
+
+</script>
+
+</body>
+</html>
