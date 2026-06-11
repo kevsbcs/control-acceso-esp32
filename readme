@@ -1,0 +1,177 @@
+# Sistema Inteligente de Control de Acceso con ESP32, RFID, PIN e Inteligencia Artificial
+
+## Descripción del proyecto
+
+Este proyecto implementa un sistema inteligente de control de acceso para recintos, desarrollado como trabajo académico de Ingeniería Electrónica en la Universidad del Cauca.
+
+El sistema permite registrar entradas y salidas de usuarios mediante diferentes métodos de autenticación y realiza el conteo de personas utilizando visión artificial.
+
+## Funcionalidades principales
+
+* Autenticación mediante tarjeta RFID (MFRC522).
+* Autenticación mediante código PIN desde pantalla táctil.
+* Interfaz gráfica desarrollada con LVGL sobre ESP32-S3 Touch LCD 1.28".
+* Comunicación con servidor mediante WiFi.
+* Validación de credenciales utilizando PHP y base de datos MySQL.
+* Registro automático de entradas y salidas.
+* Conteo de personas utilizando Inteligencia Artificial y cámara.
+* Integración de backend, firmware embebido y módulo de visión artificial.
+
+---
+
+# Arquitectura general
+
+```
+Usuario
+     │
+     ▼
+Pantalla Touch ESP32-S3
+     │
+ ┌───┴─────────────┐
+ │                 │
+ ▼                 ▼
+PIN             RFID MFRC522
+ │                 │
+ └──────► ESP32 ◄──┘
+              │
+              │ WiFi
+              ▼
+      Servidor PHP (XAMPP)
+              │
+              ▼
+         Base de datos MySQL
+              │
+              ▼
+     Registro de accesos
+
+              +
+              │
+
+ Cámara + Inteligencia Artificial
+
+              │
+              ▼
+
+ Conteo automático de personas
+```
+
+---
+
+# Tecnologías utilizadas
+
+## Hardware
+
+* ESP32-S3 Touch LCD 1.28 (Waveshare)
+* Pantalla LCD táctil integrada
+* Sensor táctil CST816S
+* Lector RFID MFRC522
+* Tarjetas RFID
+* Cámara para visión artificial
+
+## Software
+
+* PlatformIO
+* Visual Studio Code
+* Arduino Framework
+* LVGL
+* PHP
+* MySQL
+* XAMPP
+* Python
+* OpenCV
+* Inteligencia Artificial para conteo de personas
+
+---
+
+# Organización del proyecto
+
+El proyecto se divide en varios módulos:
+
+* Firmware ESP32 Entrada
+* Firmware ESP32 Salida
+* Backend PHP
+* Base de datos MySQL
+* Módulo de Inteligencia Artificial
+* Interfaz gráfica táctil
+
+---
+
+# Instalación
+
+## Backend
+
+1. Instalar XAMPP.
+2. Copiar la carpeta `control_accesof` en `htdocs`.
+3. Iniciar Apache y MySQL.
+4. Importar la base de datos correspondiente.
+
+## Firmware ESP32
+
+1. Abrir el proyecto en Visual Studio Code con PlatformIO.
+2. Compilar el proyecto.
+3. Configurar SSID y contraseña WiFi.
+4. Configurar la IP del servidor PHP.
+5. Cargar el firmware en la ESP32.
+
+## Inteligencia Artificial
+
+Instalar las dependencias necesarias mediante:
+
+```
+pip install -r requirements.txt
+```
+
+Ejecutar posteriormente el módulo correspondiente de detección y conteo.
+
+---
+
+# Conexión del módulo RFID
+
+| MFRC522 | ESP32-S3 |
+| ------- | -------- |
+| VCC     | 3.3 V    |
+| GND     | GND      |
+| SDA     | GPIO16   |
+| SCK     | GPIO17   |
+| MOSI    | GPIO18   |
+| MISO    | GPIO21   |
+| RST     | GPIO33   |
+
+---
+
+# Flujo de funcionamiento
+
+1. El usuario selecciona autenticación por PIN o RFID.
+2. La ESP32 captura la credencial.
+3. Se envía una solicitud HTTP al servidor PHP.
+4. El servidor consulta la base de datos.
+5. Se valida el acceso.
+6. Se registra la entrada o salida.
+7. La pantalla informa el resultado al usuario.
+8. Paralelamente, el módulo de IA realiza el conteo automático de personas presentes.
+
+---
+
+# Repositorio
+
+Código fuente:
+
+https://github.com/kevsbcs/control-acceso-esp32
+
+---
+
+# Archivos complementarios
+
+Los proyectos completos, recursos adicionales, firmware, respaldo de la IA y archivos de apoyo se encuentran disponibles en:
+
+https://drive.google.com/drive/u/1/folders/1gT6BkpMHpowSl4r5fBL8Y4D7uaoqCBJx
+
+---
+
+# Autores
+
+Proyecto desarrollado como trabajo académico para la asignatura de Entornos Inteligentes.
+
+Universidad del Cauca
+
+Programa de Ingeniería Electrónica.
